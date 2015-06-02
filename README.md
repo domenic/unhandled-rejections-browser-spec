@@ -54,4 +54,57 @@ A typical implementation of HostPromiseRejectionTracker would try to notify deve
 
 ## Changes to HTML
 
-TODO. Draw on https://gist.github.com/domenic/9b40029f59f29b822f3b#host-environment-algorithm.
+### Stuff to put somewhere
+
+Environment settings object seems to be a place to dump stuff? Need to define these.
+
+- Outstanding rejected promises weak set
+- About-to-be-notified rejected promises list
+
+### Unhandled Promise Rejection Tracking
+
+(This section probably belongs somewhere within the [Scripting](https://html.spec.whatwg.org/multipage/webappapis.html#scripting) section.)
+
+In addition to synchronous [runtime script errors](https://html.spec.whatwg.org/multipage/webappapis.html#runtime-script-errors), scripts may experience asynchronous promise rejections, tracked via the `unhandledrejection` and `rejectionhandled` events.
+
+#### The HostPromiseRejectionTracker implementation
+
+ECMAScript contains an implementation-defined HostPromiseRejectionTracker(_promise_, _handled_) abstract operation. User agents must use the following implementation:
+
+1. If _handled_ is false,
+    1. Add _promise_ to the about-to-be-notified rejected promises list.
+    1. Queue a task to perform the following steps:
+        1. For each entry _p_ in the about-to-be-notified rejected promises list,
+            1. Let _event_ be a new trusted `PromiseRejectionEvent` object that does not bubble and is not cancelable, and which has the event name `unhandledrejection`.
+            1. Initialise _event_'s `promise` attribute to _promise_.
+            1. Initialise _event_'s `reason` attribute to the value of _promise_'s [[PromiseResult]] internal slot.
+            1. Dispatch _event_ at the current script's [global object](https://html.spec.whatwg.org/multipage/webappapis.html#global-object).
+            1. Add _p_ to the outstanding rejected promises weak set.
+        1. Clear the about-to-be-notified rejected promises list.
+1. If _handled_ is true,
+    1. If the about-to-be-notified rejected promises list contains _promise_, remove _promise_ from the about-to-be-notified rejected promises list and return.
+    1. Assert: the outstanding rejected promises weak set contains _promise_.
+    1. Remove _promise_ from the outstanding rejected promises weak set.
+    1. Let _event_ be a new trusted `PromiseRejectionEvent` object that does not bubble and is not cancelable, and which has the event name `rejectionhandled`.
+    1. Initialise _event_'s `promise` attribute to _promise_.
+    1. Initialise _event_'s `reason` attribute to the value of _promise_'s [[PromiseResult]] internal slot.
+    1. Dispatch _event_ at the current script's [global object](https://html.spec.whatwg.org/multipage/webappapis.html#global-object).
+
+#### The PromiseRejectionEvent interface
+
+```webidl
+[Constructor(DOMString type, optional PromiseRejectionEventInit eventInitDict), Exposed=(Window,Worker)]
+interface PromiseRejectionEvent : Event {
+  readonly attribute Promise<any> promise;
+  readonly attribute any reason;
+};
+
+dictionary PromiseRejectionEventInit : EventInit {
+  Promise<any> promise;
+  any reason;
+};
+```
+
+The `promise` attribute must return the value it was initialised to. When the object is created, this attribute must be initialised to null. It represents the promise which this notification is about.
+
+The `reason` attribute must return the value it was initialized to. When the object is created, this attribute must be initialised to null. It represents the rejection reason for the promise.
