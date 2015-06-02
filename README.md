@@ -115,3 +115,26 @@ The `reason` attribute must return the value it was initialized to. When the obj
 ## Notes
 
 - Implementations should use the handled/unhandled state of promise rejections (as defined in HTML) when determining what to log on the console. That is, intercepting an `unhandledrejection` event and calling `preventDefault()` should prevent the corresponding rejection from showing up in the developer console.
+
+## WARNING!!
+
+The above HTML-side algorithm is probably not be exactly right, especially in regard to timing. When implementing something similar in io.js ([nodejs/io.js#758](https://github.com/nodejs/io.js/pull/758)), we found that our initial implementation could cause strange issues, equivalent to the following:
+
+```js
+window.on("unhandledrejection", () => console.log("unhandledrejection"));
+
+const a = Promise.reject(); // (1)
+
+queueTask(() => {
+  const b = Promise.reject();
+  queueMicrotask(() => b.catch(() => {}));
+});
+
+// This logged "unhandledrejection" twice.
+// If you commented out (1), it logged nothing at all (!?).
+// The desired behavior is to log once! (i.e. log for a, and not for b).
+```
+
+There is a [suite of test cases](https://github.com/nodejs/io.js/blob/master/test/parallel/test-promises-unhandled-rejections.js) covering the desired behavior, and we hope to experiment while implementing to find appropriate tweaks to the spec to achieve the desired result.
+
+You can discuss this further in [issue #2](https://github.com/domenic/unhandled-rejections-browser-spec/issues/2).
