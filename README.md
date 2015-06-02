@@ -22,13 +22,13 @@ Add an additional step between steps 6 and 7:
 
 Add an additional step between steps 6 and 7:
 
-1. If the value of _promise_'s [[PromiseIsHandled]] internal slot is **false**, perform HostPromiseRejectionTracker(_promise_, **false**).
+1. If the value of _promise_'s [[PromiseIsHandled]] internal slot is **false**, perform HostPromiseRejectionTracker(_promise_, `"reject"`).
 
 ### [PerformPromiseThen( promise, onFulfilled, onRejected, resultCapability )](https://people.mozilla.org/~jorendorff/es6-draft.html#sec-performpromisethen)
 
 Add an additional step nested inside step 9, between 9a and 9b:
 
-1. If the value of _promise_'s [[PromiseIsHandled]] internal slot is **false**, perform HostPromiseRejectionTracker(_promise_, **true**).
+1. If the value of _promise_'s [[PromiseIsHandled]] internal slot is **false**, perform HostPromiseRejectionTracker(_promise_, `"handle"`).
 
 Add an additional step between steps 9 and 10:
 
@@ -38,12 +38,12 @@ Add an additional step between steps 9 and 10:
 
 Add an additional section as follows:
 
-#### HostPromiseRejectionTracker( promise, handled )
+#### HostPromiseRejectionTracker( promise, operation )
 
 HostPromiseRejectionTracker is an implementation-defined abstract operation that allows host environments to track promise rejections better. Specifically, it is called in two scenarios:
 
-- When a promise is rejected without any handlers, it is called with its _handled_ argument set to **false**.
-- When a handler is added to a rejected promise for the first time, it is called with its _handled_ argument set to **true**.
+- When a promise is rejected without any handlers, it is called with its _operation_ argument set to `"reject"`.
+- When a handler is added to a rejected promise for the first time, it is called with its _operation_ argument set to `"handle"`.
 
 The implementation of HostPromiseRejectionTracker must conform to the following requirements:
 
@@ -69,19 +69,22 @@ In addition to synchronous [runtime script errors](https://html.spec.whatwg.org/
 
 #### The HostPromiseRejectionTracker implementation
 
-ECMAScript contains an implementation-defined HostPromiseRejectionTracker(_promise_, _handled_) abstract operation. User agents must use the following implementation:
+ECMAScript contains an implementation-defined HostPromiseRejectionTracker(_promise_, _operation_) abstract operation. User agents must use the following implementation.
 
-1. If _handled_ is false,
+This implementation results in promise rejections being marked as **handled** or **unhandled**. These concepts parallel the same ones for [script errors](https://html.spec.whatwg.org/multipage/webappapis.html#concept-error-handled).
+
+1. If _operation_ is `"reject"`,
     1. Add _promise_ to the about-to-be-notified rejected promises list.
     1. Queue a task to perform the following steps:
         1. For each entry _p_ in the about-to-be-notified rejected promises list,
+            1. Add _p_ to the outstanding rejected promises weak set.
             1. Let _event_ be a new trusted `PromiseRejectionEvent` object that does not bubble and is not cancelable, and which has the event name `unhandledrejection`.
             1. Initialise _event_'s `promise` attribute to _promise_.
             1. Initialise _event_'s `reason` attribute to the value of _promise_'s [[PromiseResult]] internal slot.
             1. Dispatch _event_ at the current script's [global object](https://html.spec.whatwg.org/multipage/webappapis.html#global-object).
-            1. Add _p_ to the outstanding rejected promises weak set.
+            1. If event was canceled, then the error is handled. Otherwise, the error is not handled.
         1. Clear the about-to-be-notified rejected promises list.
-1. If _handled_ is true,
+1. If _operation_ is `"handle"`,
     1. If the about-to-be-notified rejected promises list contains _promise_, remove _promise_ from the about-to-be-notified rejected promises list and return.
     1. Assert: the outstanding rejected promises weak set contains _promise_.
     1. Remove _promise_ from the outstanding rejected promises weak set.
@@ -108,3 +111,7 @@ dictionary PromiseRejectionEventInit : EventInit {
 The `promise` attribute must return the value it was initialised to. When the object is created, this attribute must be initialised to null. It represents the promise which this notification is about.
 
 The `reason` attribute must return the value it was initialized to. When the object is created, this attribute must be initialised to null. It represents the rejection reason for the promise.
+
+## Notes
+
+- Implementations should use the handled/unhandled state of promise rejections (as defined in HTML) when determining what to log on the console. That is, intercepting an `unhandledrejection` event and calling `preventDefault()` should prevent the corresponding rejection from showing up in the developer console.
