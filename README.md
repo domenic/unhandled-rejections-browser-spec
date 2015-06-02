@@ -112,6 +112,15 @@ The `promise` attribute must return the value it was initialised to. When the ob
 
 The `reason` attribute must return the value it was initialized to. When the object is created, this attribute must be initialised to null. It represents the rejection reason for the promise.
 
+## [GlobalEventHandlers](https://html.spec.whatwg.org/multipage/webappapis.html#globaleventhandlers)
+
+Add
+
+```webidl
+  attribute EventHandler onunhandledrejection;
+  attribute EventHandler onrejectionhandled;
+```
+
 ## Notes
 
 - Implementations should use the handled/unhandled state of promise rejections (as defined in HTML) when determining what to log on the console. That is, intercepting an `unhandledrejection` event and calling `preventDefault()` should prevent the corresponding rejection from showing up in the developer console.
