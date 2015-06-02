@@ -48,9 +48,11 @@ HostPromiseRejectionTracker is an implementation-defined abstract operation that
 The implementation of HostPromiseRejectionTracker must conform to the following requirements:
 
 - It must complete normally in all cases.
-- It must not hold a reference to _promise_ in a way that would interfere with garbage collection.
+- If _operation_ is `"handle"`, it must not hold a reference to _promise_ in a way that would interfere with garbage collection.
 
 A typical implementation of HostPromiseRejectionTracker would try to notify developers of unhandled rejections, while also being careful to notify them if such previous notifications are later invalidated by new handlers being attached.
+
+_NOTE_ an implementation may hold a reference to _promise_ if _operation_ is `"reject"`, since it is expected that rejections will be rare and not on hot code paths.
 
 ## Changes to HTML
 
