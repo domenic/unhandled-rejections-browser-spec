@@ -114,7 +114,16 @@ The `promise` attribute must return the value it was initialised to. When the ob
 
 The `reason` attribute must return the value it was initialized to. When the object is created, this attribute must be initialised to null. It represents the rejection reason for the promise.
 
-## [GlobalEventHandlers](https://html.spec.whatwg.org/multipage/webappapis.html#globaleventhandlers)
+## [WindowEventHandlers](https://html.spec.whatwg.org/multipage/webappapis.html#windoweventhandlers)
+
+Add
+
+```webidl
+  attribute EventHandler onunhandledrejection;
+  attribute EventHandler onrejectionhandled;
+```
+
+## [WorkerGlobalScope](https://html.spec.whatwg.org/multipage/workers.html#workerglobalscope)
 
 Add
 
