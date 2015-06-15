@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<script src="../resources/testharness.js"></script>
+<script src="../resources/testharnessreport.js"></script>
+<script>
+'use strict';
+
+setup({
+  allow_uncaught_exception: true
+});
+
+var e = new Error('e');
+var e2 = new Error('e2');
+
+window.onerror = function (ev) {
+  assert_equals(ev.message, 'e2');
+  assert_equals(ev.error, e2);
+};
+
+window.onrejectionhandled = function() {
+  throw e2;
+};
+
+var p = Promise.reject(e);
+
+setTimeout(function() {
+  try {
+    p.catch(function() {});
+  } catch (e) {
+    assert_unreached('attaching a handler should not throw an error');
+  }
+}, 1);
+</script>
