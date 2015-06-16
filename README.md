@@ -98,7 +98,7 @@ This implementation results in promise rejections being marked as **handled** or
 #### The PromiseRejectionEvent interface
 
 ```webidl
-[Constructor(DOMString type, optional PromiseRejectionEventInit eventInitDict), Exposed=(Window,Worker)]
+[Constructor(DOMString type, optional PromiseRejectionEventInit eventInitDict), Exposed=(Window,Worker,ServiceWorker)]
 interface PromiseRejectionEvent : Event {
   readonly attribute Promise<any> promise;
   readonly attribute any reason;
