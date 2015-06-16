@@ -80,7 +80,7 @@ This implementation results in promise rejections being marked as **handled** or
     1. Queue a task to perform the following steps:
         1. For each entry _p_ in the about-to-be-notified rejected promises list,
             1. Add _p_ to the outstanding rejected promises weak set.
-            1. Let _event_ be a new trusted `PromiseRejectionEvent` object that does not bubble and is not cancelable, and which has the event name `unhandledrejection`.
+            1. Let _event_ be a new trusted `PromiseRejectionEvent` object that does not bubble and is cancelable, and which has the event name `unhandledrejection`.
             1. Initialise _event_'s `promise` attribute to _promise_.
             1. Initialise _event_'s `reason` attribute to the value of _promise_'s [[PromiseResult]] internal slot.
             1. Dispatch _event_ at the current script's [global object](https://html.spec.whatwg.org/multipage/webappapis.html#global-object).
