@@ -83,7 +83,7 @@ This implementation results in promise rejections being marked as **handled** or
             1. Initialise _event_'s `promise` attribute to _promise_.
             1. Initialise _event_'s `reason` attribute to the value of _promise_'s [[PromiseResult]] internal slot.
             1. Dispatch _event_ at the current script's [global object](https://html.spec.whatwg.org/multipage/webappapis.html#global-object).
-            1. If event was canceled, then the error is handled. Otherwise, the error is not handled.
+            1. If event was canceled, then the promise rejection is handled. Otherwise, the promise rejection is not handled.
             1. if _p_'s [[PromiseIsHandled]] internal slot is false then add _p_ to the outstanding rejected promises weak set.
         1. Clear the about-to-be-notified rejected promises list.
 1. If _operation_ is `"handle"`,
