@@ -110,9 +110,9 @@ dictionary PromiseRejectionEventInit : EventInit {
 };
 ```
 
-The `promise` attribute must return the value it was initialised to. When the object is created, this attribute must be initialised to null. It represents the promise which this notification is about.
+The `promise` attribute must return the value it was initialised to. When the object is created, this attribute must be initialised to undefined. It represents the promise which this notification is about.
 
-The `reason` attribute must return the value it was initialized to. When the object is created, this attribute must be initialised to null. It represents the rejection reason for the promise.
+The `reason` attribute must return the value it was initialized to. When the object is created, this attribute must be initialised to undefined. It represents the rejection reason for the promise.
 
 ## [WindowEventHandlers](https://html.spec.whatwg.org/multipage/webappapis.html#windoweventhandlers)
 
