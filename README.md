@@ -136,6 +136,8 @@ Add
 
 - Implementations should use the handled/unhandled state of promise rejections (as defined in HTML) when determining what to log on the console. That is, intercepting an `unhandledrejection` event and calling `preventDefault()` should prevent the corresponding rejection from showing up in the developer console.
 
+- Implementations are free to limit the size of the rejected promises weak set.
+
 ## WARNING!!
 
 The above HTML-side algorithm is probably not be exactly right, especially in regard to timing. When implementing something similar in io.js ([nodejs/io.js#758](https://github.com/nodejs/io.js/pull/758)), we found that our initial implementation could cause strange issues, equivalent to the following:
