@@ -8,7 +8,7 @@
 test(function() {
   // No initializer is passed.
   assert_equals(new PromiseRejectionEvent('eventType').bubbles, false);
-  assert_equals(new PromiseRejectionEvent('eventType').cancelable, true);
+  assert_equals(new PromiseRejectionEvent('eventType').cancelable, false);
   assert_equals(new PromiseRejectionEvent('eventType').promise, undefined);
   assert_equals(new PromiseRejectionEvent('eventType').reason, undefined);
 
@@ -17,7 +17,7 @@ test(function() {
   assert_equals(new PromiseRejectionEvent('eventType', { bubbles: true }).bubbles, true);
 
   // cancelable is passed.
-  assert_equals(new PromiseRejectionEvent('eventType', { cancelable: false }).cancelable, true);
+  assert_equals(new PromiseRejectionEvent('eventType', { cancelable: false }).cancelable, false);
   assert_equals(new PromiseRejectionEvent('eventType', { cancelable: true }).cancelable, true);
 
   // promise is passed.
