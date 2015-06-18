@@ -102,12 +102,12 @@ To **notify about rejected promises**, perform the following steps:
 ```webidl
 [Constructor(DOMString type, optional PromiseRejectionEventInit eventInitDict), Exposed=(Window,Worker,ServiceWorker)]
 interface PromiseRejectionEvent : Event {
-  readonly attribute Promise<any> promise;
+  readonly attribute Promise<any>? promise;
   readonly attribute any reason;
 };
 
 dictionary PromiseRejectionEventInit : EventInit {
-  Promise<any> promise;
+  Promise<any>? promise;
   any reason;
 };
 ```
