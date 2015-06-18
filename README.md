@@ -77,15 +77,7 @@ This implementation results in promise rejections being marked as **handled** or
 
 1. If _operation_ is `"reject"`,
     1. Add _promise_ to the about-to-be-notified rejected promises list.
-    1. Queue a task to perform the following steps:
-        1. For each entry _p_ in the about-to-be-notified rejected promises list,
-            1. Let _event_ be a new trusted `PromiseRejectionEvent` object that does not bubble and is cancelable, and which has the event name `unhandledrejection`.
-            1. Initialise _event_'s `promise` attribute to _p_.
-            1. Initialise _event_'s `reason` attribute to the value of _p_'s [[PromiseResult]] internal slot.
-            1. Dispatch _event_ at the current script's [global object](https://html.spec.whatwg.org/multipage/webappapis.html#global-object).
-            1. If event was canceled, then the promise rejection is handled. Otherwise, the promise rejection is not handled.
-            1. If _p_'s [[PromiseIsHandled]] internal slot is false, add _p_ to the outstanding rejected promises weak set.
-        1. Clear the about-to-be-notified rejected promises list.
+    1. Queue a task to notify about rejected promises.
 1. If _operation_ is `"handle"`,
     1. If the about-to-be-notified rejected promises list contains _promise_, remove _promise_ from the about-to-be-notified rejected promises list and return.
     1. If the outstanding rejected promises weak set does not contain _promise_ then return.
@@ -93,6 +85,17 @@ This implementation results in promise rejections being marked as **handled** or
     1. Let _event_ be a new trusted `PromiseRejectionEvent` object that does not bubble and is not cancelable, and which has the event name `rejectionhandled`.
     1. Initialise _event_'s `promise` attribute to _promise_.
     1. Dispatch _event_ at the current script's [global object](https://html.spec.whatwg.org/multipage/webappapis.html#global-object).
+
+To **notify about rejected promises**, perform the following steps:
+
+1. For each entry _p_ in the about-to-be-notified rejected promises list,
+    1. Let _event_ be a new trusted `PromiseRejectionEvent` object that does not bubble and is cancelable, and which has the event name `unhandledrejection`.
+    1. Initialise _event_'s `promise` attribute to _p_.
+    1. Initialise _event_'s `reason` attribute to the value of _p_'s [[PromiseResult]] internal slot.
+    1. Dispatch _event_ at the current script's [global object](https://html.spec.whatwg.org/multipage/webappapis.html#global-object).
+    1. If event was canceled, then the promise rejection is handled. Otherwise, the promise rejection is unhandled.
+    1. If _p_'s [[PromiseIsHandled]] internal slot is false, add _p_ to the outstanding rejected promises weak set.
+1. Clear the about-to-be-notified rejected promises list.
 
 #### The PromiseRejectionEvent interface
 
