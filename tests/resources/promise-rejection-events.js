@@ -486,7 +486,7 @@ async_test(function(t) {
         assert_array_equals(unhandledPromises, [p]);
         assert_array_equals(unhandledReasons, [e]);
         assert_equals(ev.promise, p);
-        assert_equals(ev.reason, null);
+        assert_equals(ev.reason, e);
       });
     }
   };
