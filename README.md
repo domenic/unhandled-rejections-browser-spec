@@ -62,14 +62,15 @@ Environment settings object seems to be a place to dump stuff? Need to define th
 
 - Outstanding rejected promises weak set
 - About-to-be-notified rejected promises list
+- Will notify about rejected promises flag
 
 ### [Perform a microtask checkpoint](https://html.spec.whatwg.org/multipage/webappapis.html#perform-a-microtask-checkpoint)
 
 Insert a step between steps 8 and 9:
 
-1. _Done:_ <a href="#user-content-notify-about-rejected-promises">Notify about rejected promises</a>.
-
-Remove the "_Done:_" label from step 9.
+1. If the about-to-be-notified rejected promises list is not empty, and the will notify about rejected promises flag is unset,
+  1. Queue a task to <a href="#user-content-notify-about-rejected-promises">notify about rejected promises</a>.
+  1. Set the will notify about rejected promises flag.
 
 ### Unhandled promise rejections
 
@@ -98,6 +99,7 @@ This implementation results in promise rejections being marked as **handled** or
 
 To <a id="notify-about-rejected-promises">**notify about rejected promises**</a>, perform the following steps:
 
+1. Unset the will notify about rejected promises flag.
 1. For each entry _p_ in the about-to-be-notified rejected promises list,
     1. Let _event_ be a new trusted `PromiseRejectionEvent` object that does not bubble and is cancelable, and which has the event name `unhandledrejection`.
     1. Initialise _event_'s `promise` attribute to _p_.
