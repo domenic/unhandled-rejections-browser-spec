@@ -15,7 +15,7 @@ test(function() {
   assert_equals(new PromiseRejectionEvent('eventType').reason, null);
 
   // No promise is passed.
-  assert_throws(null,
+  assert_throws(new TypeError(),
                 function() {
                   new PromiseRejectionEvent('eventType', { bubbles: false });
                 }, 
