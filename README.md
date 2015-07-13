@@ -63,9 +63,15 @@ Environment settings object seems to be a place to dump stuff? Need to define th
 - Outstanding rejected promises weak set
 - About-to-be-notified rejected promises list
 
-### Unhandled Promise Rejection Tracking
+### [Perform a microtask checkpoint](https://html.spec.whatwg.org/multipage/webappapis.html#perform-a-microtask-checkpoint)
 
-(This section probably belongs somewhere within the [Scripting](https://html.spec.whatwg.org/multipage/webappapis.html#scripting) section.)
+Insert a step between steps 8 and 9:
+
+1. <a href="#user-content-notify-about-rejected-promises">Notify about rejected promises</a>.
+
+### Unhandled promise rejections
+
+(This section probably belongs somewhere within the [Scripting](https://html.spec.whatwg.org/multipage/webappapis.html#scripting) section, probably right after [Runtime script errors](https://html.spec.whatwg.org/multipage/webappapis.html#runtime-script-errors).)
 
 In addition to synchronous [runtime script errors](https://html.spec.whatwg.org/multipage/webappapis.html#runtime-script-errors), scripts may experience asynchronous promise rejections, tracked via the `unhandledrejection` and `rejectionhandled` events.
 
@@ -73,11 +79,10 @@ In addition to synchronous [runtime script errors](https://html.spec.whatwg.org/
 
 ECMAScript contains an implementation-defined HostPromiseRejectionTracker(_promise_, _operation_) abstract operation. User agents must use the following implementation.
 
-This implementation results in promise rejections being marked as **handled** or **unhandled**. These concepts parallel the same ones for [script errors](https://html.spec.whatwg.org/multipage/webappapis.html#concept-error-handled).
+This implementation results in promise rejections being marked as **handled** or **unhandled**. These concepts parallel handled and not handled for [script errors](https://html.spec.whatwg.org/multipage/webappapis.html#concept-error-handled).
 
 1. If _operation_ is `"reject"`,
     1. Add _promise_ to the about-to-be-notified rejected promises list.
-    1. Queue a task to notify about rejected promises.
 1. If _operation_ is `"handle"`,
     1. If the about-to-be-notified rejected promises list contains _promise_, remove _promise_ from the about-to-be-notified rejected promises list and return.
     1. If the outstanding rejected promises weak set does not contain _promise_ then return.
@@ -87,7 +92,9 @@ This implementation results in promise rejections being marked as **handled** or
     1. Initialise _event_'s `reason` attribute to the value of _promise_'s [[PromiseResult]] internal slot.
     1. Dispatch _event_ at the current script's [global object](https://html.spec.whatwg.org/multipage/webappapis.html#global-object).
 
-To **notify about rejected promises**, perform the following steps:
+#### Notification of rejected promises
+
+To <a id="notify-about-rejected-promises">**notify about rejected promises**</a>, perform the following steps:
 
 1. For each entry _p_ in the about-to-be-notified rejected promises list,
     1. Let _event_ be a new trusted `PromiseRejectionEvent` object that does not bubble and is cancelable, and which has the event name `unhandledrejection`.
@@ -117,7 +124,7 @@ The `promise` attribute must return the value it was initialised to. It represen
 
 The `reason` attribute must return the value it was initialized to. It represents the rejection reason for the promise.
 
-## [WindowEventHandlers](https://html.spec.whatwg.org/multipage/webappapis.html#windoweventhandlers)
+### [WindowEventHandlers](https://html.spec.whatwg.org/multipage/webappapis.html#windoweventhandlers)
 
 Add
 
@@ -126,7 +133,7 @@ Add
   attribute EventHandler onrejectionhandled;
 ```
 
-## [WorkerGlobalScope](https://html.spec.whatwg.org/multipage/workers.html#workerglobalscope)
+### [WorkerGlobalScope](https://html.spec.whatwg.org/multipage/workers.html#workerglobalscope)
 
 Add
 
@@ -135,31 +142,8 @@ Add
   attribute EventHandler onrejectionhandled;
 ```
 
-## Notes
+### Notes
 
 - Implementations should use the handled/unhandled state of promise rejections (as defined in HTML) when determining what to log on the console. That is, intercepting an `unhandledrejection` event and calling `preventDefault()` should prevent the corresponding rejection from showing up in the developer console.
 
 - Implementations are free to limit the size of the rejected promises weak set.
-
-## WARNING!!
-
-The above HTML-side algorithm is probably not be exactly right, especially in regard to timing. When implementing something similar in io.js ([nodejs/io.js#758](https://github.com/nodejs/io.js/pull/758)), we found that our initial implementation could cause strange issues, equivalent to the following:
-
-```js
-window.on("unhandledrejection", () => console.log("unhandledrejection"));
-
-const a = Promise.reject(); // (1)
-
-queueTask(() => {
-  const b = Promise.reject();
-  queueMicrotask(() => b.catch(() => {}));
-});
-
-// This logged "unhandledrejection" twice.
-// If you commented out (1), it logged nothing at all (!?).
-// The desired behavior is to log once! (i.e. log for a, and not for b).
-```
-
-There is a [suite of test cases](https://github.com/nodejs/io.js/blob/master/test/parallel/test-promises-unhandled-rejections.js) covering the desired behavior, and we hope to experiment while implementing to find appropriate tweaks to the spec to achieve the desired result.
-
-You can discuss this further in [issue #2](https://github.com/domenic/unhandled-rejections-browser-spec/issues/2).
