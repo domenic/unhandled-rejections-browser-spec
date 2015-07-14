@@ -68,9 +68,11 @@ Environment settings object seems to be a place to dump stuff? Need to define th
 
 Insert a step between steps 8 and 9:
 
-1. If the about-to-be-notified rejected promises list is not empty, and the will notify about rejected promises flag is unset,
+1. _Done:_ If the about-to-be-notified rejected promises list is not empty, and the will notify about rejected promises flag is unset,
   1. Queue a task to <a href="#user-content-notify-about-rejected-promises">notify about rejected promises</a>.
   1. Set the will notify about rejected promises flag.
+
+Modify step 9 to remove the "_Done:_" label from it.
 
 ### Unhandled promise rejections
 
