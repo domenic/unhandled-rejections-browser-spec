@@ -67,7 +67,9 @@ Environment settings object seems to be a place to dump stuff? Need to define th
 
 Insert a step between steps 8 and 9:
 
-1. <a href="#user-content-notify-about-rejected-promises">Notify about rejected promises</a>.
+1. _Done:_ <a href="#user-content-notify-about-rejected-promises">Notify about rejected promises</a>.
+
+Remove the "_Done:_" label from step 9.
 
 ### Unhandled promise rejections
 
