@@ -673,6 +673,69 @@ async_test(function(t) {
   Promise.reject(e);
 }, 'mutationObserverMicrotask vs. postMessageTask ordering is not disturbed inside unhandledrejection events');
 
+// For the next two see https://github.com/domenic/unhandled-rejections-browser-spec/issues/2#issuecomment-121121695
+// and the following comments.
+
+async_test(function(t) {
+  var sequenceOfEvents = [];
+
+  addEventListener('unhandledrejection', l);
+  ensureCleanup(t, l);
+
+  var p1 = Promise.reject();
+  var p2;
+  postMessageTask(function() {
+    p2 = Promise.reject();
+    postMessageTask(function() {
+      sequenceOfEvents.push('postMessageTask');
+      checkSequence();
+    });
+  });
+
+  function l(ev) {
+    sequenceOfEvents.push(ev.promise);
+    checkSequence();
+  }
+
+  function checkSequence() {
+    if (sequenceOfEvents.length === 3) {
+      t.step(function() {
+        assert_array_equals(sequenceOfEvents, [p1, p2, 'postMessageTask']);
+      });
+    }
+  }
+}, 'postMessageTask ordering vs. the task queued for unhandled rejection notification (1)');
+
+async_test(function(t) {
+  var sequenceOfEvents = [];
+
+  addEventListener('unhandledrejection', l);
+  ensureCleanup(t, l);
+
+  var p2;
+  postMessageTask(function() {
+    p2 = Promise.reject();
+    postMessageTask(function() {
+      sequenceOfEvents.push('postMessageTask');
+      checkSequence();
+    });
+  });
+
+  function l(ev) {
+    sequenceOfEvents.push(ev.promise);
+    checkSequence();
+  }
+
+  function checkSequence() {
+    if (sequenceOfEvents.length === 2) {
+      t.step(function() {
+        assert_array_equals(sequenceOfEvents, ['postMessageTask', p2]);
+      });
+    }
+  }
+}, 'postMessageTask ordering vs. the task queued for unhandled rejection notification (2)');
+
+
 //
 // HELPERS
 //
