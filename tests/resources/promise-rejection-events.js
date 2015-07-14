@@ -700,8 +700,9 @@ async_test(function(t) {
   function checkSequence() {
     if (sequenceOfEvents.length === 3) {
       t.step(function() {
-        assert_array_equals(sequenceOfEvents, [p1, p2, 'postMessageTask']);
+        assert_array_equals(sequenceOfEvents, [p1, 'postMessageTask', p2]);
       });
+      t.done();
     }
   }
 }, 'postMessageTask ordering vs. the task queued for unhandled rejection notification (1)');
@@ -731,6 +732,7 @@ async_test(function(t) {
       t.step(function() {
         assert_array_equals(sequenceOfEvents, ['postMessageTask', p2]);
       });
+      t.done();
     }
   }
 }, 'postMessageTask ordering vs. the task queued for unhandled rejection notification (2)');
