@@ -63,6 +63,8 @@ Environment settings object seems to be a place to dump stuff? Need to define th
 - Outstanding rejected promises weak set
 - About-to-be-notified rejected promises list
 
+_NOTE:_ Implementations are free to limit the size of the rejected promises weak set.
+
 ### [Perform a microtask checkpoint](https://html.spec.whatwg.org/multipage/webappapis.html#perform-a-microtask-checkpoint)
 
 Insert a step between steps 8 and 9:
@@ -82,8 +84,6 @@ In addition to synchronous [runtime script errors](https://html.spec.whatwg.org/
 #### The HostPromiseRejectionTracker implementation
 
 ECMAScript contains an implementation-defined HostPromiseRejectionTracker(_promise_, _operation_) abstract operation. User agents must use the following implementation.
-
-This implementation results in promise rejections being marked as **handled** or **unhandled**. These concepts parallel handled and not handled for [script errors](https://html.spec.whatwg.org/multipage/webappapis.html#concept-error-handled).
 
 1. If _operation_ is `"reject"`,
     1. Add _promise_ to the about-to-be-notified rejected promises list.
@@ -105,8 +105,12 @@ To <a id="notify-about-rejected-promises">**notify about a list of rejected prom
     1. Initialise _event_'s `promise` attribute to _p_.
     1. Initialise _event_'s `reason` attribute to the value of _p_'s [[PromiseResult]] internal slot.
     1. Dispatch _event_ at the current script's [global object](https://html.spec.whatwg.org/multipage/webappapis.html#global-object).
-    1. If event was canceled, then the promise rejection is handled. Otherwise, the promise rejection is unhandled.
+    1. If event was canceled, then the promise rejection is handled. Otherwise, the promise rejection is not handled.
     1. If _p_'s [[PromiseIsHandled]] internal slot is false, add _p_ to the outstanding rejected promises weak set.
+
+This implementation results in promise rejections being marked as **handled** or **not handled**. These concepts parallel handled and not handled for [script errors](https://html.spec.whatwg.org/multipage/webappapis.html#concept-error-handled).
+
+_NOTE:_ Implementations should use the handled/not handled state of promise rejections when determining what to log in any debugging interfaces. That is, intercepting an `unhandledrejection` event and calling `preventDefault()` should prevent the corresponding rejection from showing up in the developer console or similar.
 
 #### The PromiseRejectionEvent interface
 
@@ -144,9 +148,3 @@ Add
   attribute EventHandler onunhandledrejection;
   attribute EventHandler onrejectionhandled;
 ```
-
-### Notes
-
-- Implementations should use the handled/unhandled state of promise rejections (as defined in HTML) when determining what to log on the console. That is, intercepting an `unhandledrejection` event and calling `preventDefault()` should prevent the corresponding rejection from showing up in the developer console.
-
-- Implementations are free to limit the size of the rejected promises weak set.
