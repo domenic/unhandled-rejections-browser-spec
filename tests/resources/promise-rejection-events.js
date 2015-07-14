@@ -737,6 +737,56 @@ async_test(function(t) {
   }
 }, 'postMessageTask ordering vs. the task queued for unhandled rejection notification (2)');
 
+async_test(function(t) {
+  var sequenceOfEvents = [];
+
+
+  addEventListener('unhandledrejection', unhandled);
+  addEventListener('rejectionhandled', handled);
+  ensureCleanup(t, unhandled, handled);
+
+  var p = Promise.reject();
+
+  setTimeout(function() {
+    postMessageTask(function() {
+      sequenceOfEvents.push('task before catch');
+      checkSequence();
+    });
+
+    p.catch(function() {
+      sequenceOfEvents.push('catch');
+      checkSequence();
+    });
+
+    postMessageTask(function() {
+      sequenceOfEvents.push('task after catch');
+      checkSequence();
+    });
+
+    sequenceOfEvents.push('after catch');
+    checkSequence();
+  }, 10);
+
+  function unhandled() {
+    sequenceOfEvents.push('unhandled');
+    checkSequence();
+  }
+
+  function handled() {
+    sequenceOfEvents.push('handled');
+    checkSequence();
+  }
+
+  function checkSequence() {
+    if (sequenceOfEvents.length === 6) {
+      t.step(function() {
+        assert_array_equals(sequenceOfEvents,
+          ['unhandled', 'after catch', 'catch', 'task before catch', 'handled', 'task after catch']);
+      });
+      t.done();
+    }
+  }
+}, 'rejectionhandled is dispatched from a queued task, and not immediately');
 
 //
 // HELPERS
