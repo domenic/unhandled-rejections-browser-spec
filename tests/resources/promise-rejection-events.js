@@ -844,12 +844,16 @@ function onUnhandledSucceed(t, expectedReason, expectedPromiseGetter) {
 function onUnhandledFail(t, expectedPromiseGetter) {
   var unhandled = function(evt) {
     if (evt.promise === expectedPromiseGetter()) {
-      t.unreached_func('unhandledrejection event is not supposed to be triggered');
+      t.step(function() {
+        assert_unreached('unhandledrejection event is not supposed to be triggered');
+      });
     }
   };
   var handled = function(evt) {
     if (evt.promise === expectedPromiseGetter()) {
-      t.unreached_func('rejectionhandled event is not supposed to be triggered');
+      t.step(function() {
+        assert_unreached('rejectionhandled event is not supposed to be triggered');
+      });
     }
   };
   addEventListener('unhandledrejection', unhandled);
