@@ -40,19 +40,18 @@ Add an additional section as follows:
 
 #### HostPromiseRejectionTracker( promise, operation )
 
-HostPromiseRejectionTracker is an implementation-defined abstract operation that allows host environments to track promise rejections better. Specifically, it is called in two scenarios:
+HostPromiseRejectionTracker is an implementation-defined abstract operation that allows host environments to track promise rejections.
+
+The default implementation of HostPromiseRejectionTracker is to do nothing. An implementation of HostPromiseRejectionTracker must complete normally in all cases.
+
+_NOTE 1_ HostPromiseRejectionTracker is called in two scenarios:
 
 - When a promise is rejected without any handlers, it is called with its _operation_ argument set to `"reject"`.
 - When a handler is added to a rejected promise for the first time, it is called with its _operation_ argument set to `"handle"`.
 
-The implementation of HostPromiseRejectionTracker must conform to the following requirements:
+A typical implementation of HostPromiseRejectionTracker might try to notify developers of unhandled rejections, while also being careful to notify them if such previous notifications are later invalidated by new handlers being attached.
 
-- It must complete normally in all cases.
-- If _operation_ is `"handle"`, it must not hold a reference to _promise_ in a way that would interfere with garbage collection.
-
-A typical implementation of HostPromiseRejectionTracker would try to notify developers of unhandled rejections, while also being careful to notify them if such previous notifications are later invalidated by new handlers being attached.
-
-_NOTE_ an implementation may hold a reference to _promise_ if _operation_ is `"reject"`, since it is expected that rejections will be rare and not on hot code paths.
+_NOTE 2_ If _operation_ is `"handle"`, an implementation should not hold a reference to _promise_ in a way that would interfere with garbage collection. An implementation may hold a reference to _promise_ if _operation_ is `"reject"`, since it is expected that rejections will be rare and not on hot code paths.
 
 ## Changes to HTML
 
