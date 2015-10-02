@@ -62,7 +62,7 @@ Environment settings object seems to be a place to dump stuff? Need to define th
 - Outstanding rejected promises weak set
 - About-to-be-notified rejected promises list
 
-_NOTE:_ Implementations are free to limit the size of the rejected promises weak set.
+Implementations are free to limit the size of the rejected promises weak set, e.g. removing old entries from it when new ones are added.
 
 ### [Perform a microtask checkpoint](https://html.spec.whatwg.org/multipage/webappapis.html#perform-a-microtask-checkpoint)
 
