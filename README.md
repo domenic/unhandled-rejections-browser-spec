@@ -69,9 +69,7 @@ _NOTE:_ Implementations are free to limit the size of the rejected promises weak
 
 Insert a step between steps 8 and 9:
 
-1. _Done:_ If the about-to-be-notified rejected promises list is not empty,
-  1. Queue a task to <a href="#user-content-notify-about-rejected-promises">notify about the rejected promises</a> currently in the about-to-be-notified rejected promises list.
-  1. Clear the about-to-be-notified rejected promises list.
+1. _Done:_ If the about-to-be-notified rejected promises list is not empty, queue a task to <a href="#user-content-notify-about-rejected-promises">notify about rejected promises</a>.
 
 Modify step 9 to remove the "_Done:_" label from it.
 
@@ -99,15 +97,16 @@ ECMAScript contains an implementation-defined HostPromiseRejectionTracker(_promi
 
 #### Notification of rejected promises
 
-To <a id="notify-about-rejected-promises">**notify about a list of rejected promises**</a>, given a list _list_, perform the following steps:
+To <a id="notify-about-rejected-promises">**notify about rejected promises**</a>, perform the following steps:
 
-1. For each entry _p_ in _list_,
+1. For each entry _p_ in the about-to-be-notified rejected promises list,
     1. Let _event_ be a new trusted `PromiseRejectionEvent` object that does not bubble and is cancelable, and which has the event name `unhandledrejection`.
     1. Initialise _event_'s `promise` attribute to _p_.
     1. Initialise _event_'s `reason` attribute to the value of _p_'s [[PromiseResult]] internal slot.
     1. Dispatch _event_ at the current script's [global object](https://html.spec.whatwg.org/multipage/webappapis.html#global-object).
     1. If event was canceled, then the promise rejection is handled. Otherwise, the promise rejection is not handled.
     1. If _p_'s [[PromiseIsHandled]] internal slot is false, add _p_ to the outstanding rejected promises weak set.
+1. Clear the about-to-be-notified rejected promises list.
 
 This implementation results in promise rejections being marked as **handled** or **not handled**. These concepts parallel handled and not handled for [script errors](https://html.spec.whatwg.org/multipage/webappapis.html#concept-error-handled).
 
