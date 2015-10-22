@@ -123,7 +123,7 @@ interface PromiseRejectionEvent : Event {
 };
 
 dictionary PromiseRejectionEventInit : EventInit {
-  required Promise<any>? promise;
+  Promise<any>? promise;
   any reason = null;
 };
 ```
